@@ -68,22 +68,22 @@ static unsigned long trasstat;
 
 static irqreturn_t t2read_interrupt(int irq, void *dev_id )
 {  
-    writel(0x8000, Timeviraddr+TIM2CTRL+0x08); //Çå³ýÖÐ¶Ï
+    writel(0x8000, Timeviraddr+TIM2CTRL+0x08); //æ¸…é™¤ä¸­æ–­
     int i = 65;
 	  while((readl(Uartviraddr + UARTAPP_STAT)&(1<<24)) == 0){
-		//ÅÐ¶Ï¶Áfifo¿Õ
+		//åˆ¤æ–­è¯»fifoç©º
 		 //printk("UARTAPP_STAT1:%08x\n",readl(Uartviraddr +UARTAPP_STAT));
 		//mdelay(1);
 	  	printk("DATA:%c\n",readb(Uartviraddr +UARTAPP_DATA));
 	  	
 	  }
 		
-	  while((readl(Uartviraddr + UARTAPP_STAT)&(1<<25)) == 0)
-	    {//ÅÐ¶ÏÐ´fifo
+	/*  while((readl(Uartviraddr + UARTAPP_STAT)&(1<<25)) == 0)
+	    {//åˆ¤æ–­å†™fifo
 		  writeb( (char)i,(Uartviraddr +UARTAPP_DATA));
 		 i++;
 	   // printk("UARTAPP_STAT3:%08x\n",readl(Uartviraddr +UARTAPP_STAT));
-		}
+		}*/
 		return IRQ_HANDLED; 
 }
 
@@ -114,7 +114,7 @@ static void Config_UARTAPP_CTRL2( )
    //writel(0x00500000,(Uartviraddr + UARTAPP_INTR));
 }
 
-static void Config_UARTAPP_LINECTRL( ) //²¨ÌØÂÊ¡¢FIFO
+static void Config_UARTAPP_LINECTRL( ) //æ³¢ç‰¹çŽ‡ã€FIFO
 {
    writel(0x02710a7e,(Uartviraddr +UARTAPP_LINECTRL));
 }
@@ -149,7 +149,12 @@ static int  uart_init(void)
    printk("TC:%08x\n",readl(ioremap(TIME_CT,0x100)));
   
     request_irq(IRQ_TIMER2,t2read_interrupt,IRQF_DISABLED | IRQF_TIMER,"t1uart0_read",NULL);
-
+     while((readl(Uartviraddr + UARTAPP_STAT)&(1<<25)) == 0)
+	    {//åˆ¤æ–­å†™fifo
+		  writeb( (char)i,(Uartviraddr +UARTAPP_DATA));
+		 i++;
+	   // printk("UARTAPP_STAT3:%08x\n",readl(Uartviraddr +UARTAPP_STAT));
+		}
      /* while((readl(Uartviraddr + UARTAPP_STAT)&(1<<25)) == 0)
             {
                 // printk("UARTAPP_STAT2:%08x\n",readl(Uartviraddr +UARTAPP_STAT));
